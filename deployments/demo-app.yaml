@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service
+  labels:
+    app: hello-deployment
+spec:
+  type: NodePort
+  ports:
+    - port: 3005
+      name: app-port
+      nodePort: 32426
+  selector:
+    app: hello-deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-deployment
+  template:
+    metadata:
+      labels:
+        app: hello-deployment
+    spec:
+      # imagePullSecrets:
+      # - name: regcred
+      containers:
+      - name: hello-deployment
+        image: docker.io/ebaek19/argo-hello:1.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3005
+          name: app-port
+        command: ["node"]
+        args: ["/app/index.js"]
